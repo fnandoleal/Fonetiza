@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fonetiza — conversor experimental de escrita fonética para português brasileiro.">
+  <title>Fonetiza — Português mais perto da fala</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav>
+      <strong>Fonetiza</strong>
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+
+    <div class="hero-content">
+      <span class="tag">ESCRITA FONÉTICA</span>
+      <h1>Português escrito<br><em>mais perto da fala.</em></h1>
+      <p>
+        Transforme palavras e textos para uma escrita simplificada,
+        baseada na pronúncia do português brasileiro.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="converter">
+      <div class="panel">
+        <label for="entrada">Texto original</label>
+        <textarea id="entrada" placeholder="Digite ou cole seu texto aqui..."></textarea>
+      </div>
+
+      <button id="fonetizar">Fonetizar →</button>
+
+      <div class="panel result">
+        <div class="result-title">
+          <label for="saida">Resultado</label>
+          <button id="copiar">Copiar</button>
+        </div>
+        <textarea id="saida" readonly placeholder="O resultado aparecerá aqui..."></textarea>
+      </div>
+    </section>
+
+    <section class="examples">
+      <h2>Veja a ideia</h2>
+      <div class="cards">
+        <article><span>exatamente</span><b>ezatamente</b></article>
+        <article><span>aproximação</span><b>aprosimasão</b></article>
+        <article><span>reuniões</span><b>reunioins</b></article>
+        <article><span>transição</span><b>tranzisão</b></article>
+      </div>
+    </section>
+
+    <section class="about">
+      <h2>Não é IPA. É uma nova forma de escrever.</h2>
+      <p>
+        O Fonetiza não tenta representar a pronúncia com símbolos técnicos.
+        A proposta é manter o alfabeto comum e aproximar a escrita da maneira
+        como as palavras são pronunciadas.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Fonetiza</strong>
+    <span>Projeto experimental de escrita fonética.</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
