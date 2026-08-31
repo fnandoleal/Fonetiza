@@ -1,71 +1,72 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fonetiza — Conversor Fonético PT-BR</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fonetiza — conversor experimental de escrita fonética para português brasileiro.">
+  <title>Fonetiza — Português mais perto da fala</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <h1>Fonetiza</h1>
-    <p>Escreva o português de uma forma mais próxima de como ele é pronunciado.</p>
-  </div>
-</header>
-<main class="wrap">
-  <section class="card">
-    <label for="orig">Texto original</label>
-    <textarea id="orig" spellcheck="false" placeholder="Cole aqui seu texto em português..."></textarea>
-    <div class="actions">
-      <button class="primary" id="convert">Converter</button>
-      <button class="secondary" id="copy">Copiar resultado</button>
-      <button class="secondary" id="download">Baixar TXT</button>
-      <button class="danger" id="clear">Limpar</button>
-    </div>
-    <div class="hint">A conversão preserva pontuação, espaços, acentos e quebras de linha.</div>
-  </section>
+  <header class="hero">
+    <nav>
+      <strong>Fonetiza</strong>
+      <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>
+    </nav>
 
-  <section class="grid">
-    <div class="card">
-      <label for="out">Resultado</label>
-      <textarea id="out" spellcheck="false" readonly></textarea>
+    <div class="hero-content">
+      <span class="tag">ESCRITA FONÉTICA</span>
+      <h1>Português escrito<br><em>mais perto da fala.</em></h1>
+      <p>
+        Transforme palavras e textos para uma escrita simplificada,
+        baseada na pronúncia do português brasileiro.
+      </p>
     </div>
-    <div class="card">
-      <label>Resumo</label>
-      <div id="validation" class="status">Aguardando conversão.</div>
-      <div class="stats">
-        <div class="stat"><b id="words">0</b><span>palavras</span></div>
-        <div class="stat"><b id="changed">0</b><span>alteradas</span></div>
-        <div class="stat"><b id="rules">0</b><span>transformações</span></div>
-        <div class="stat"><b id="errors">0</b><span>violações</span></div>
+  </header>
+
+  <main>
+    <section class="converter">
+      <div class="panel">
+        <label for="entrada">Texto original</label>
+        <textarea id="entrada" spellcheck="false" placeholder="Digite ou cole seu texto aqui..."></textarea>
       </div>
-    </div>
-  </section>
 
-  <section class="card panel">
-    <label>Alterações detectadas</label>
-    <div id="report" class="hint">Faça uma conversão para ver os detalhes.</div>
-  </section>
+      <button id="fonetizar" type="button">Fonetizar →</button>
 
-  <section class="card panel">
-    <label>Princípios do motor</label>
-    <div class="tags">
-      <span>CE/CI → SE/SI</span>
-      <span>GE/GI → JE/JI</span>
-      <span>CH → X</span>
-      <span>LH → LL</span>
-      <span>NH → NN</span>
-      <span>Ç → S</span>
-      <span>QU/K → C</span>
-      <span>Y → I</span>
-      <span>H sem som → removido</span>
-      <span>SS → S</span>
-      <span>terminações → som</span>
-      <span>X analisado por contexto</span>
-    </div>
-  </section>
-</main>
-<script src="script.js"></script>
+      <div class="panel result">
+        <div class="result-title">
+          <label for="saida">Resultado</label>
+          <button id="copiar" type="button">Copiar</button>
+        </div>
+        <textarea id="saida" spellcheck="false" readonly placeholder="O resultado aparecerá aqui..."></textarea>
+      </div>
+    </section>
+
+    <section class="examples">
+      <h2>Veja a ideia</h2>
+      <div class="cards">
+        <article><span>exatamente</span><b>ezatamente</b></article>
+        <article><span>aproximação</span><b>aprosimasão</b></article>
+        <article><span>reuniões</span><b>reunioins</b></article>
+        <article><span>transição</span><b>tranzisão</b></article>
+      </div>
+    </section>
+
+    <section class="about">
+      <h2>Não é IPA. É uma nova forma de escrever.</h2>
+      <p>
+        O Fonetiza não tenta representar a pronúncia com símbolos técnicos.
+        A proposta é manter o alfabeto comum e aproximar a escrita da maneira
+        como as palavras são pronunciadas.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Fonetiza</strong>
+    <span>Projeto experimental de escrita fonética.</span>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>

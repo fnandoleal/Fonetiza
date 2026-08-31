@@ -1,27 +1,193 @@
-*{box-sizing:border-box}
-:root{font-family:Segoe UI,Arial,sans-serif;color:#18212b;background:#f4f6f8}
-body{margin:0}
-header{background:#17202a;color:#fff;padding:26px 0}
-.wrap{max-width:1400px;margin:auto;padding:0 18px}
-h1{margin:0 0 5px;font-size:28px}
-header p{margin:0;color:#cbd5df}
-.card{background:#fff;border:1px solid #dce2e8;border-radius:14px;padding:16px;box-shadow:0 2px 8px #0000000b;margin-top:18px}
-label{font-weight:700;display:block;margin-bottom:8px}
-textarea{width:100%;min-height:360px;resize:vertical;border:1px solid #cbd3db;border-radius:10px;padding:14px;font:16px/1.55 Consolas,monospace}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
-button{border:0;border-radius:9px;padding:11px 16px;font-weight:700;cursor:pointer}
-button:active{transform:translateY(1px)}
-.primary{background:#1f6feb;color:#fff}.secondary{background:#e9eef3;color:#18212b}.danger{background:#fce8e8;color:#9d2020}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
-.stat{background:#f7f9fb;border:1px solid #e1e6eb;border-radius:10px;padding:12px}
-.stat b{display:block;font-size:22px}.stat span{font-size:13px;color:#65717d}
-.status{font-size:14px}.ok{color:#147a42}.bad{color:#b42318}
-.hint{font-size:13px;color:#65717d}
-.panel{margin-top:18px}
-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
-th,td{text-align:left;border-bottom:1px solid #e8ebef;padding:9px;vertical-align:top}
-th{background:#f7f9fb}
-code{background:#eef2f5;padding:2px 5px;border-radius:5px}
-.tag,.tags span{display:inline-block;padding:5px 9px;border-radius:20px;background:#eef2f5;margin:3px;font-size:13px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #17202a;
+  background: #f6f7f9;
+}
+
+body {
+  margin: 0;
+}
+
+.hero {
+  min-height: 430px;
+  background: #101828;
+  color: white;
+}
+
+nav {
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav strong {
+  font-size: 1.35rem;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  opacity: .8;
+}
+
+.hero-content {
+  max-width: 1100px;
+  margin: 70px auto 0;
+  padding: 0 24px;
+}
+
+.tag {
+  font-size: .75rem;
+  letter-spacing: .18em;
+  opacity: .65;
+}
+
+h1 {
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: .98;
+  margin: 18px 0;
+}
+
+h1 em {
+  font-style: normal;
+  opacity: .55;
+}
+
+.hero p {
+  max-width: 650px;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  opacity: .8;
+}
+
+main {
+  max-width: 1100px;
+  margin: -70px auto 80px;
+  padding: 0 24px;
+}
+
+.converter {
+  background: white;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.10);
+  display: grid;
+  gap: 18px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+label {
+  font-weight: 700;
+}
+
+textarea {
+  width: 100%;
+  min-height: 230px;
+  resize: vertical;
+  border: 1px solid #d9dee7;
+  border-radius: 14px;
+  padding: 16px;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.6;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: #667085;
+}
+
+#fonetizar {
+  justify-self: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 14px 28px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #17202a;
+  color: white;
+}
+
+.result-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#copiar {
+  border: 1px solid #d9dee7;
+  background: white;
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.examples,
+.about {
+  padding: 80px 10px 0;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.cards article {
+  background: white;
+  padding: 22px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cards span {
+  color: #667085;
+}
+
+.cards b {
+  font-size: 1.25rem;
+}
+
+.about p {
+  max-width: 760px;
+  line-height: 1.8;
+  color: #475467;
+}
+
+footer {
+  padding: 35px 24px;
+  border-top: 1px solid #e4e7ec;
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  color: #667085;
+}
+
+@media (max-width: 700px) {
+  .cards {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  footer {
+    flex-direction: column;
+    align-items: center;
+  }
+}

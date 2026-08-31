@@ -309,50 +309,36 @@ function esc(s){
 }
 
 function render(){
-  const original=document.getElementById("orig").value;
-  const result=convertText(original);
-  document.getElementById("out").value=result.converted;
-
-  const words=(original.match(WORD_RE)||[]).length;
-  const problems=validate(result.converted);
-  document.getElementById("words").textContent=words;
-  document.getElementById("changed").textContent=result.changes.length;
-  document.getElementById("rules").textContent=result.ruleCount;
-  document.getElementById("errors").textContent=problems.length;
-
-  const v=document.getElementById("validation");
-  v.className=problems.length?"status bad":"status ok";
-  v.textContent=problems.length
-    ?"✗ Violações: "+problems.join(", ")
-    :"✓ Estrutura validada: nenhuma letra proibida.";
-
-  const report=document.getElementById("report");
-  if(!result.changes.length){report.textContent="Nenhuma alteração foi necessária.";return;}
-  report.innerHTML="<table><thead><tr><th>Original</th><th>Convertida</th><th>Regra</th></tr></thead><tbody>"+
-    result.changes.map(x=>"<tr><td><code>"+esc(x.from)+"</code></td><td><code>"+esc(x.to)+"</code></td><td>"+
-      (x.rules.length?x.rules.map(r=>"<span class='tag'>"+esc(r)+"</span>").join(" "):"<span class='tag'>forma confirmada</span>")+
-      "</td></tr>").join("")+"</tbody></table>";
+  const entrada = document.getElementById("entrada");
+  const saida = document.getElementById("saida");
+  const original = entrada.value;
+  const result = convertText(original);
+  saida.value = result.converted;
 }
 
-document.getElementById("convert").addEventListener("click",render);
-document.getElementById("copy").addEventListener("click",async()=>{
-  const text=document.getElementById("out").value;
-  if(!text)return;
-  try{await navigator.clipboard.writeText(text);}catch{alert("Não foi possível copiar automaticamente.");}
+document.getElementById("fonetizar").addEventListener("click", render);
+
+document.getElementById("copiar").addEventListener("click", async () => {
+  const text = document.getElementById("saida").value;
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    const botao = document.getElementById("copiar");
+    const anterior = botao.textContent;
+    botao.textContent = "Copiado!";
+    setTimeout(() => botao.textContent = anterior, 1200);
+  } catch {
+    const saida = document.getElementById("saida");
+    saida.focus();
+    saida.select();
+    try { document.execCommand("copy"); } catch {}
+  }
 });
-document.getElementById("download").addEventListener("click",()=>{
-  const text=document.getElementById("out").value;
-  if(!text)return;
-  const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download="texto_convertido.txt";a.click();
-  URL.revokeObjectURL(a.href);
-});
-document.getElementById("clear").addEventListener("click",()=>{
-  document.getElementById("orig").value="";
-  document.getElementById("out").value="";
-  document.getElementById("report").textContent="Faça uma conversão para ver os detalhes.";
-  document.getElementById("validation").className="status";
-  document.getElementById("validation").textContent="Aguardando conversão.";
-  ["words","changed","rules","errors"].forEach(id=>document.getElementById(id).textContent="0");
+
+// Atalho útil: Ctrl+Enter / Cmd+Enter converte o texto.
+document.getElementById("entrada").addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+    event.preventDefault();
+    render();
+  }
 });
