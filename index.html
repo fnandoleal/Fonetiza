@@ -1,6 +1,32 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Fonetiza — Conversor Fonético</title><link rel="stylesheet" href="style.css"></head><body><header><h1>Fonetiza</h1><p>Conversor de ortografia fonética em português — análise contextual sem conversões em cascata.</p></header><main><div class="grid"><div class="card"><label for="orig">Texto original</label><textarea id="orig" spellcheck="false" placeholder="Cole aqui o texto original..."></textarea><div class="actions"><button class="primary" id="convert">Converter e analisar</button><button class="secondary" id="copy">Copiar resultado</button><button class="secondary" id="download">Baixar TXT</button><button class="danger" id="clear">Limpar</button></div><div class="small">O motor analisa cada palavra a partir da grafia original. Casos já validados têm prioridade sobre regras genéricas.</div></div><div class="card"><label for="out">Texto convertido</label><textarea id="out" spellcheck="false" readonly></textarea><div class="stats"><div class="stat"><b id="words">0</b>palavras</div><div class="stat"><b id="changed">0</b>alteradas</div><div class="stat"><b id="rules">0</b>regras aplicadas</div><div class="stat"><b id="errors">0</b>violações</div></div></div></div><div class="card panel"><label>Validação</label><div id="validation" class="small">Ainda não executada.</div></div><div class="card panel"><label>Alterações detectadas</label><div id="report" class="small">Faça uma conversão para ver a análise.</div></div><div class="card panel"><label>Testes automáticos do motor</label><div id="tests" class="small"></div></div><div class="card panel"><label>Princípios do motor</label><div><span class="tag">palavra original como fonte</span><span class="tag">sem conversão em cascata</span><span class="tag">léxico validado com prioridade</span><span class="tag">terminações nasais contextuais</span><span class="tag">x analisado pelo contexto</span><span class="tag">ch → x</span><span class="tag">lh → ll</span><span class="tag">nh → nn</span><span class="tag">ge/gi → je/ji</span><span class="tag">ç/ss → s</span></div></div></main><script src="conversor.js"></script><script>
-const $=id=>document.getElementById(id);function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function render(){const original=$('orig').value,r=Fonetiza.convertText(original),problems=Fonetiza.validate(r.converted);$('out').value=r.converted;$('words').textContent=(original.match(/\p{L}+(?:[-']\p{L}+)*/gu)||[]).length;$('changed').textContent=r.changes.length;$('rules').textContent=r.ruleCount;$('errors').textContent=problems.length;$('validation').className=problems.length?'bad':'ok';$('validation').textContent=problems.length?'✗ '+problems.join(', '):'✓ Validação estrutural concluída.';$('report').innerHTML=r.changes.length?'<table><thead><tr><th>Original</th><th>Convertida</th><th>Regra</th></tr></thead><tbody>'+r.changes.map(x=>'<tr><td><code>'+esc(x.from)+'</code></td><td><code>'+esc(x.to)+'</code></td><td>'+x.rules.map(y=>'<span class="tag">'+esc(y)+'</span>').join(' ')+'</td></tr>').join('')+'</tbody></table>':'Nenhuma alteração.';}
-function tests(){let ok=0;const rows=Fonetiza.TESTES.map(([a,e])=>{const x=Fonetiza.convertWord(a).word,yes=x===e;if(yes)ok++;return '<tr><td><code>'+esc(a)+'</code></td><td><code>'+esc(e)+'</code></td><td><code>'+esc(x)+'</code></td><td class="'+(yes?'test-ok':'test-bad')+'">'+(yes?'OK':'ERRO')+'</td></tr>';}).join('');$('tests').innerHTML='<p>'+ok+'/'+Fonetiza.TESTES.length+' testes validados.</p><table><thead><tr><th>Entrada</th><th>Esperado</th><th>Obtido</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>';}
-$('convert').onclick=render;$('copy').onclick=async()=>{if($('out').value)await navigator.clipboard.writeText($('out').value)};$('download').onclick=()=>{if(!$('out').value)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([$('out').value],{type:'text/plain;charset=utf-8'}));a.download='texto_convertido.txt';a.click()};$('clear').onclick=()=>{$('orig').value='';$('out').value='';['words','changed','rules','errors'].forEach(x=>$(x).textContent='0');$('validation').className='small';$('validation').textContent='Ainda não executada.';$('report').textContent='Faça uma conversão para ver a análise.'};tests();
-</script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fonetiza — Conversor de Ortografia</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Fonetiza</h1>
+      <p>Conversor experimental para uma ortografia simplificada baseada na pronúncia.</p>
+    </header>
+
+    <section class="card">
+      <label for="entrada">Texto original</label>
+      <textarea id="entrada" placeholder="Cole seu texto aqui..."></textarea>
+
+      <div class="actions">
+        <button id="converter">Converter</button>
+        <button id="limpar" class="secondary">Limpar</button>
+      </div>
+
+      <label for="saida">Texto convertido</label>
+      <textarea id="saida" readonly placeholder="O resultado aparecerá aqui..."></textarea>
+      <p id="status" class="status"></p>
+    </section>
+  </main>
+  <script src="conversor.js"></script>
+</body>
+</html>
