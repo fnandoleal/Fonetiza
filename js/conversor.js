@@ -1,3 +1,107 @@
+
+/* ============================================================
+   CAMADA FONÉTICA INTELIGENTE — FONETIZA
+   Ordem:
+   1. preservar palavras já tratadas/exceções;
+   2. aplicar padrões fonéticos gerais;
+   3. aplicar regras contextuais;
+   4. exceções somente quando realmente necessárias.
+   ============================================================ */
+
+const FONETIZA_REGRAS_GERAIS = [
+  // Nasalização/plural em -ões: som final "oins".
+  { re: /ões\b/gi, fn: m => m[0] === "ÕES" ? "OINS" : (m[0][0] === "Õ" ? "Oins" : "oins") },
+
+  // X com som de /s/: exemplos como próximo/próximas e aproximação.
+  { re: /x(?=[aeiouáéíóúâêôãõ])/gi, fn: "s" },
+
+  // X com som de /ks/: reflexo, fixo, fluxo.
+  // Mantém o x quando não há evidência contextual de /s/.
+  { re: /x(?=[^aeiouáéíóúâêôãõ]|$)/gi, fn: "c" },
+
+  // C com som de /s/ antes de e/i.
+  { re: /c(?=[eiéêí])/gi, fn: "s" },
+
+  // G com som de /j/ antes de e/i.
+  { re: /g(?=[eiéêí])/gi, fn: "j" },
+
+  // CH com som de /x/.
+  { re: /ch/gi, fn: "x" },
+
+  // LH/NH.
+  { re: /lh/gi, fn: "ll" },
+  { re: /nh/gi, fn: "nn" },
+
+  // QU/GU/K/W/Y/H.
+  { re: /qu(?=e)/gi, fn: "c" },
+  { re: /qu(?=i)/gi, fn: "c" },
+  { re: /gu(?=[ei])/gi, fn: "g" },
+  { re: /k/gi, fn: "c" },
+  { re: /y/gi, fn: "i" },
+
+  // SS nunca é utilizado.
+  { re: /ss/gi, fn: "s" },
+
+  // Ç sempre representa /s/.
+  { re: /ç/gi, fn: "s" }
+];
+
+const FONETIZA_EXCECOES_VALIDAS = {
+  "antigidades": "antiguidades",
+  "deizando": "deixando",
+  "ambisões": "ambisoins",
+  "faizas": "faixas",
+  "sopping": "xópim",
+  "fundasões": "fundasoins",
+  "põe": "poim",
+  "reflezo": "reflecso",
+  "ezato": "exato",
+  "ezersísio": "exercísio",
+  "desconezão": "desconecsão",
+  "gélida": "jélida"
+};
+
+function fonetizaAplicarRegrasInteligentes(palavra) {
+  if (!palavra || !/[A-Za-zÀ-ÿ]/.test(palavra)) return palavra;
+
+  const chave = palavra.toLocaleLowerCase("pt-BR");
+  if (Object.prototype.hasOwnProperty.call(FONETIZA_EXCECOES_VALIDAS, chave)) {
+    const v = FONETIZA_EXCECOES_VALIDAS[chave];
+    if (palavra === palavra.toUpperCase()) return v.toUpperCase();
+    if (palavra[0] === palavra[0].toUpperCase()) {
+      return v.charAt(0).toUpperCase() + v.slice(1);
+    }
+    return v;
+  }
+
+  let r = palavra;
+
+  for (const regra of FONETIZA_REGRAS_GERAIS) {
+    r = r.replace(regra.re, regra.fn);
+  }
+
+  return r;
+}
+
+function aplicarExcecoesAprendidas(palavra) {
+  const chave = palavra.toLocaleLowerCase("pt-BR");
+  const convertido = excecoesAprendidas[chave];
+  if (!convertido) return palavra;
+  if (palavra === palavra.toUpperCase()) return convertido.toUpperCase();
+  if (palavra[0] === palavra[0].toUpperCase())
+    return convertido.charAt(0).toUpperCase() + convertido.slice(1);
+  return convertido;
+}
+
+const excecoesAprendidas = {
+  "deizando": "deixando",
+  "ambisões": "ambisoins",
+  "faizas": "faixas",
+  "sopping": "xópim",
+  "fundasões": "fundasoins",
+  "põe": "poim"
+};
+
 "use strict";
 
 /*
@@ -432,3 +536,6 @@ function testarRegras(){
     return {entrada,esperado,atual,ok:atual===esperado};
   });
 }
+
+// API pública da camada inteligente para integração com a conversão atual.
+window.fonetizaConverterPalavraInteligente = fonetizaAplicarRegrasInteligentes;
