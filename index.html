@@ -3,64 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conversor Fonético PT-BR</title>
+<meta name="description" content="Fonetiza — conversor fonético experimental para português brasileiro.">
+<title>Fonetiza — Conversor Fonético PT-BR</title>
 <link rel="stylesheet" href="css/estilo.css">
-
 </head>
 <body>
 <header>
-<h1>Conversor Fonético PT-BR</h1>
-<p>Conversão baseada em som + regras contextuais, com proteção contra conversões em cascata.</p>
+  <h1>Fonetiza</h1>
+  <p>Conversor fonético experimental para português brasileiro.</p>
 </header>
 <main>
-<div class="card">
-<label for="orig">Texto original</label>
-<textarea id="orig" spellcheck="false" placeholder="Cole aqui o texto original em português..."></textarea>
-<div class="actions">
-<button class="primary" id="convert">Converter e analisar</button>
-<button class="secondary" id="copy">Copiar resultado</button>
-<button class="secondary" id="download">Baixar TXT</button>
-<button class="danger" id="clear">Limpar</button>
-</div>
-<div class="small">O conversor preserva pontuação, espaços e quebras de linha. Cada palavra é analisada a partir da grafia original.</div>
-</div>
+  <div class="card">
+    <label for="orig">Texto original</label>
+    <textarea id="orig" spellcheck="false" placeholder="Cole aqui o texto original em português..."></textarea>
+    <div class="actions">
+      <button type="button" class="primary" id="convert">Converter e analisar</button>
+      <button type="button" class="secondary" id="copy">Copiar resultado</button>
+      <button type="button" class="secondary" id="download">Baixar TXT</button>
+      <button type="button" class="danger" id="clear">Limpar</button>
+    </div>
+    <div class="small">O conversor preserva pontuação, espaços e quebras de linha. Cada palavra é analisada a partir da grafia original.</div>
+  </div>
 
-<div class="grid" style="margin-top:16px">
-<div class="card"><label for="out">Texto convertido</label><textarea id="out" spellcheck="false" readonly></textarea></div>
-<div class="card">
-<label>Validação</label><div id="validation" class="small">Ainda não executada.</div>
-<div class="stats">
-<div class="stat"><b id="words">0</b>palavras</div>
-<div class="stat"><b id="changed">0</b>alteradas</div>
-<div class="stat"><b id="rules">0</b>regras aplicadas</div>
-<div class="stat"><b id="errors">0</b>violações</div>
-</div>
-</div>
-</div>
+  <div class="grid" style="margin-top:16px">
+    <div class="card">
+      <label for="out">Texto convertido</label>
+      <textarea id="out" spellcheck="false" readonly></textarea>
+    </div>
+    <div class="card">
+      <label>Validação</label>
+      <div id="validation" class="small">Ainda não executada.</div>
+      <div class="stats">
+        <div class="stat"><b id="words">0</b>palavras</div>
+        <div class="stat"><b id="changed">0</b>alteradas</div>
+        <div class="stat"><b id="rules">0</b>regras aplicadas</div>
+        <div class="stat"><b id="errors">0</b>violações</div>
+      </div>
+    </div>
+  </div>
 
-<div class="card panel"><label>Regras e casos detectados</label><div id="report" class="small">Faça uma conversão para ver a análise.</div></div>
+  <div class="card panel">
+    <label>Regras e casos detectados</label>
+    <div id="report" class="small">Faça uma conversão para ver a análise.</div>
+  </div>
 
-<div class="card panel">
-<label>Princípios ativos</label>
-<div>
-<span class="tag">análise pela palavra original</span>
-<span class="tag">proteção contra cascatas</span>
-<span class="tag">x → s / z / cs conforme contexto</span>
-<span class="tag">ch → x</span>
-<span class="tag">lh → ll</span>
-<span class="tag">nh → nn</span>
-<span class="tag">ge/gi → je/ji</span>
-<span class="tag">ce/ci → se/si</span>
-<span class="tag">ç → s</span>
-<span class="tag">ss → s</span>
-<span class="tag">s intervocálico → z</span>
-<span class="tag">ções/ões → soins/oins</span>
-<span class="tag">qu preserva u pronunciado</span>
-</div>
-</div>
+  <div class="card panel">
+    <label>Princípios ativos</label>
+    <div>
+      <span class="tag">análise pela palavra original</span>
+      <span class="tag">proteção contra cascatas</span>
+      <span class="tag">x → s / z / cs conforme contexto</span>
+      <span class="tag">ch → x</span>
+      <span class="tag">lh → ll</span>
+      <span class="tag">nh → nn</span>
+      <span class="tag">ge/gi → je/ji</span>
+      <span class="tag">ce/ci → se/si</span>
+      <span class="tag">ç → s</span>
+      <span class="tag">ss → s</span>
+      <span class="tag">s intervocálico → z</span>
+      <span class="tag">ções/ões → soins/oins</span>
+      <span class="tag">qu preserva u pronunciado</span>
+    </div>
+  </div>
 </main>
-
-
-<script src="js/conversor.js"></script>
+<script src="js/conversor.js" defer></script>
 </body>
 </html>
