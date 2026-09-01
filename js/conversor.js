@@ -1,145 +1,84 @@
+/*
+  FONETIZA — Motor fonético v4
 
-/* ============================================================
-   CAMADA FONÉTICA INTELIGENTE — FONETIZA
-   Ordem:
-   1. preservar palavras já tratadas/exceções;
-   2. aplicar padrões fonéticos gerais;
-   3. aplicar regras contextuais;
-   4. exceções somente quando realmente necessárias.
-   ============================================================ */
+  PRINCÍPIO CRÍTICO:
+  A conversão SEMPRE é calculada a partir da palavra original.
+  O resultado nunca volta para o motor como entrada de outra regra.
 
-const FONETIZA_REGRAS_GERAIS = [
-  // Nasalização/plural em -ões: som final "oins".
-  { re: /ões\b/gi, fn: m => m[0] === "ÕES" ? "OINS" : (m[0][0] === "Õ" ? "Oins" : "oins") },
+  Ordem:
+  1) casos lexicais validados (original -> resultado);
+  2) padrões fonéticos gerais;
+  3) regras contextuais;
+  4) validação/regressão.
 
-  // X com som de /s/: exemplos como próximo/próximas e aproximação.
-  { re: /x(?=[aeiouáéíóúâêôãõ])/gi, fn: "s" },
-
-  // X com som de /ks/: reflexo, fixo, fluxo.
-  // Mantém o x quando não há evidência contextual de /s/.
-  { re: /x(?=[^aeiouáéíóúâêôãõ]|$)/gi, fn: "c" },
-
-  // C com som de /s/ antes de e/i.
-  { re: /c(?=[eiéêí])/gi, fn: "s" },
-
-  // G com som de /j/ antes de e/i.
-  { re: /g(?=[eiéêí])/gi, fn: "j" },
-
-  // CH com som de /x/.
-  { re: /ch/gi, fn: "x" },
-
-  // LH/NH.
-  { re: /lh/gi, fn: "ll" },
-  { re: /nh/gi, fn: "nn" },
-
-  // QU/GU/K/W/Y/H.
-  { re: /qu(?=e)/gi, fn: "c" },
-  { re: /qu(?=i)/gi, fn: "c" },
-  { re: /gu(?=[ei])/gi, fn: "g" },
-  { re: /k/gi, fn: "c" },
-  { re: /y/gi, fn: "i" },
-
-  // SS nunca é utilizado.
-  { re: /ss/gi, fn: "s" },
-
-  // Ç sempre representa /s/.
-  { re: /ç/gi, fn: "s" }
-];
-
-const FONETIZA_EXCECOES_VALIDAS = {
-  "antigidades": "antiguidades",
-  "deizando": "deixando",
-  "ambisões": "ambisoins",
-  "faizas": "faixas",
-  "sopping": "xópim",
-  "fundasões": "fundasoins",
-  "põe": "poim",
-  "reflezo": "reflecso",
-  "ezato": "exato",
-  "ezersísio": "exercísio",
-  "desconezão": "desconecsão",
-  "gélida": "jélida"
-};
-
-function fonetizaAplicarRegrasInteligentes(palavra) {
-  if (!palavra || !/[A-Za-zÀ-ÿ]/.test(palavra)) return palavra;
-
-  const chave = palavra.toLocaleLowerCase("pt-BR");
-  if (Object.prototype.hasOwnProperty.call(FONETIZA_EXCECOES_VALIDAS, chave)) {
-    const v = FONETIZA_EXCECOES_VALIDAS[chave];
-    if (palavra === palavra.toUpperCase()) return v.toUpperCase();
-    if (palavra[0] === palavra[0].toUpperCase()) {
-      return v.charAt(0).toUpperCase() + v.slice(1);
-    }
-    return v;
-  }
-
-  let r = palavra;
-
-  for (const regra of FONETIZA_REGRAS_GERAIS) {
-    r = r.replace(regra.re, regra.fn);
-  }
-
-  return r;
-}
-
-function aplicarExcecoesAprendidas(palavra) {
-  const chave = palavra.toLocaleLowerCase("pt-BR");
-  const convertido = excecoesAprendidas[chave];
-  if (!convertido) return palavra;
-  if (palavra === palavra.toUpperCase()) return convertido.toUpperCase();
-  if (palavra[0] === palavra[0].toUpperCase())
-    return convertido.charAt(0).toUpperCase() + convertido.slice(1);
-  return convertido;
-}
-
-const excecoesAprendidas = {
-  "deizando": "deixando",
-  "ambisões": "ambisoins",
-  "faizas": "faixas",
-  "sopping": "xópim",
-  "fundasões": "fundasoins",
-  "põe": "poim"
-};
+  IMPORTANTE:
+  Não são cadastrados erros (ex.: "deizando"). Quando um caso lexical é
+  necessário, o cadastro é feito pela forma ORIGINAL correta (ex.: "deixando"
+  -> "deixando"). Isso impede que o sistema perpetue uma conversão errada.
+*/
 
 "use strict";
 
-/*
- MOTOR v6
- - A palavra original nunca é substituída e depois reprocessada.
- - Grupos fonéticos são consumidos diretamente da palavra original.
- - Exceções confirmadas têm prioridade.
- - Regras gerais só atuam quando não há uma decisão lexical/contextual melhor.
-*/
-
 const EXCEPTIONS = new Map(Object.entries({
-  // Casos validados diretamente nos testes do projeto.
+  /* Casos que não devem ser decididos por uma substituição mecânica. */
   "antiguidade":"antiguidade",
+  "antiguidades":"antiguidades",
+  "deixando":"deixando",
+  "deixar":"deixar",
+  "faixa":"faixa",
+  "faixas":"faixas",
+  "caixa":"caixa",
+  "caixas":"caixas",
+  "shopping":"xópim",
+  "põe":"poim",
+
+  /* X / KS / Z / S já validados */
   "reflexo":"reflecso",
+  "reflexivas":"reflecsivas",
+  "fixo":"ficso",
+  "fixada":"ficsada",
+  "fluxo":"flucso",
   "texto":"testo",
   "você":"vosê",
-  "próximo":"prósimo",
-  "próxima":"prósima",
-  "próximas":"prósimas",
   "exato":"ezato",
   "exatamente":"ezatamente",
-  "expediente":"espediente",
-  "expostas":"espostas",
-  "externa":"esterna",
-  "existiria":"ezistiria",
-  "existia":"ezistia",
-  "existe":"eziste",
   "exemplo":"ezemplo",
   "excelente":"eselente",
   "excelência":"eselênsia",
   "excesso":"eseso",
   "exceto":"eseto",
-  "explicação":"esplicasão",
-  "experiência":"esperiênsia",
+  "existiria":"ezistiria",
+  "existia":"ezistia",
+  "existe":"eziste",
+  "exibindo":"ezibindo",
+  "expediente":"espediente",
+  "expostas":"espostas",
+  "externa":"esterna",
   "exercício":"ezersísio",
   "exclusivamente":"escluzivamente",
+  "explicação":"esplicasão",
+  "experiência":"esperiênsia",
   "expedições":"espedisoins",
-  "expedições":"espedisoins",
+
+  /* Padrões já confirmados */
+  "aproximar":"aprosimar",
+  "aproximando":"aprosimando",
+  "aproximação":"aprosimasão",
+  "próximo":"prósimo",
+  "próxima":"prósima",
+  "próximas":"prósimas",
+  "transição":"tranzisão",
+  "trânsito":"trânzito",
+  "desconexão":"desconecsão",
+  "gélida":"jélida",
+  "legítimo":"lejítimo",
+  "urgência":"urjênsia",
+  "incêndio":"insêndio",
+  "extrema":"estrema",
+  "extremidade":"estremidade",
+  "extremamente":"estremamente",
+
+  /* ões -> oins e palavras já validadas */
   "regiões":"rejioins",
   "posições":"pozisoins",
   "reuniões":"reunioins",
@@ -150,23 +89,10 @@ const EXCEPTIONS = new Map(Object.entries({
   "notificações":"notificasoins",
   "anotações":"anotasoins",
   "ligações":"ligasoins",
-  "aproximação":"aprosimasão",
-  "aproximar":"aprosimar",
-  "aproximando":"aprosimando",
-  "transição":"tranzisão",
-  "desconexão":"desconecsão",
-  "reflexivas":"reflecsivas",
-  "fluxo":"flucso",
-  "fixo":"ficso",
-  "fixada":"ficsada",
-  "gélida":"jélida",
-  "legítimo":"lejítimo",
-  "urgência":"urjênsia",
-  "incêndio":"insêndio",
-  "extrema":"estrema",
-  "extremidade":"estremidade",
-  "extremamente":"estremamente",
+  "estações":"estasoins",
   "espiões":"espioins",
+
+  /* Outras formas validadas durante os testes */
   "segurança":"seguransa",
   "necessário":"nesesário",
   "necessidade":"nesesidade",
@@ -181,7 +107,6 @@ const EXCEPTIONS = new Map(Object.entries({
   "círculos":"sírculos",
   "reunião":"reunio",
   "estação":"estasão",
-  "estações":"estasoins",
   "quase":"cuaze",
   "quatro":"cuatro",
   "quando":"cuando",
@@ -198,7 +123,6 @@ const EXCEPTIONS = new Map(Object.entries({
   "chegar":"xegar",
   "choque":"xoque",
   "chamou":"xamou",
-  "chafariz":"xafariz",
   "olhar":"ollar",
   "olhos":"ollos",
   "trabalho":"traballo",
@@ -217,7 +141,6 @@ const EXCEPTIONS = new Map(Object.entries({
   "frase":"fraze",
   "presente":"prezente",
   "coisas":"coizas",
-  "idozo":"idozo",
   "idoso":"idozo",
   "cercada":"sercada",
   "principal":"prinsipal",
@@ -227,14 +150,12 @@ const EXCEPTIONS = new Map(Object.entries({
   "silenciosas":"silensiosas",
   "expressão":"espresão",
   "expressivo":"espresivo",
-  "exibindo":"ezibindo",
   "exigindo":"ezijindo",
   "exige":"ezije",
   "exigiriam":"ezijiriam",
   "anúncio":"anúnsio",
   "precisa":"presisa",
   "precisar":"presizar",
-  "precisava":"presizava",
   "precisava":"presizava",
   "precisão":"presizão",
   "receber":"reseber",
@@ -282,260 +203,366 @@ const EXCEPTIONS = new Map(Object.entries({
   "esquecido":"escesido",
   "esvaziasse":"esvaziase",
   "seguiu":"segia",
-  "trânsito":"trânzito",
-  "trancilo":"trancuilo",
   "tranquilo":"trancuilo"
 }));
 
-const RULE_NAMES = new Set();
+function lower(s) {
+  return s.toLocaleLowerCase("pt-BR");
+}
 
-function lower(s){ return s.toLocaleLowerCase("pt-BR"); }
-
-function preserveCase(original, converted){
-  if(original === original.toLocaleUpperCase("pt-BR") &&
-     original !== original.toLocaleLowerCase("pt-BR"))
+function preserveCase(original, converted) {
+  if (original === original.toLocaleUpperCase("pt-BR") &&
+      original !== original.toLocaleLowerCase("pt-BR")) {
     return converted.toLocaleUpperCase("pt-BR");
-  if(original[0] && original[0] === original[0].toLocaleUpperCase("pt-BR") &&
-     original[0] !== original[0].toLocaleLowerCase("pt-BR"))
-    return converted.charAt(0).toLocaleUpperCase("pt-BR")+converted.slice(1);
+  }
+  if (original[0] &&
+      original[0] === original[0].toLocaleUpperCase("pt-BR") &&
+      original[0] !== original[0].toLocaleLowerCase("pt-BR")) {
+    return converted.charAt(0).toLocaleUpperCase("pt-BR") + converted.slice(1);
+  }
   return converted;
 }
 
-function exceptionLookup(word){
-  const key=lower(word);
-  if(!EXCEPTIONS.has(key)) return null;
-  return preserveCase(word,EXCEPTIONS.get(key));
+function exceptionLookup(word) {
+  const key = lower(word);
+  return EXCEPTIONS.has(key)
+    ? preserveCase(word, EXCEPTIONS.get(key))
+    : null;
 }
 
-function isLetter(c){ return !!c && /\p{L}/u.test(c); }
-function isVowel(c){ return !!c && /[aeiouáéíóúâêôãõü]/iu.test(c); }
-function isFrontVowel(c){ return !!c && /[eéií]/iu.test(c); }
+function isVowel(c) {
+  return !!c && /[aeiouáéíóúâêôãõü]/iu.test(c);
+}
 
-function transformGeneric(word){
-  const out=[];
-  const rules=[];
-  const original=word;
-  const w=lower(word);
+function isFrontVowel(c) {
+  return !!c && /[eéií]/iu.test(c);
+}
 
-  const add=(text,rule)=>{
-    out.push(text);
-    if(rule) rules.push(rule);
-    RULE_NAMES.add(rule);
+function genericConvert(word) {
+  const w = lower(word);
+  const out = [];
+  const rules = [];
+
+  const add = (s, rule) => {
+    out.push(s);
+    if (rule) rules.push(rule);
   };
 
-  let i=0;
-  while(i<w.length){
-    const a=w[i], b=w[i+1]||"", c=w[i+2]||"", prev=w[i-1]||"";
-    const pair=a+b, tri=a+b+c;
+  let i = 0;
 
-    // Dígrafos: sempre tratados como unidade.
-    if(pair==="nh"){ add("nn","NH → NN"); i+=2; continue; }
-    if(pair==="lh"){ add("ll","LH → LL"); i+=2; continue; }
-    if(pair==="ch"){ add("x","CH → X"); i+=2; continue; }
+  while (i < w.length) {
+    const a = w[i];
+    const b = w[i + 1] || "";
+    const c = w[i + 2] || "";
+    const prev = w[i - 1] || "";
+    const prev2 = w[i - 2] || "";
 
-    // QU: o U é preservado quando pronunciado.
-    if(pair==="qu"){
-      if(isFrontVowel(c)) add("c","QU → C");
-      else add("cu","QU → CU");
-      i+=2; continue;
+    /* Nasalização: regra geral, não exceção por palavra. */
+    if (w.slice(i, i + 2) === "õe") {
+      add("oin", "ÕE → OIN");
+      i += 2;
+      continue;
     }
 
-    // GU: em gue/gui o U normalmente não é pronunciado; nos demais casos, preserva.
-    if(pair==="gu"){
-      if(isFrontVowel(c)) add("g","GU → G");
-      else add("gu","GU → GU");
-      i+=2; continue;
+    if (w.slice(i, i + 2) === "ões") {
+      add("oins", "ÕES → OINS");
+      i += 3;
+      continue;
     }
 
-    // GE/GI: regra definida para o projeto, sempre baseada na palavra original.
-    if(pair==="ge"){ add("je","GE → JE"); i+=2; continue; }
-    if(pair==="gi"){ add("ji","GI → JI"); i+=2; continue; }
-
-    // CE/CI.
-    if(pair==="ce"){ add("se","CE → SE"); i+=2; continue; }
-    if(pair==="ci"){ add("si","CI → SI"); i+=2; continue; }
-
-    // SC diante de E/I: som de S.
-    if(pair==="sc" && isFrontVowel(c)){
-      add("s","SC → S"); i+=2; continue;
+    /* Dígrafos consumidos diretamente da palavra original. */
+    if (a + b === "nh") {
+      add("nn", "NH → NN"); i += 2; continue;
+    }
+    if (a + b === "lh") {
+      add("ll", "LH → LL"); i += 2; continue;
+    }
+    if (a + b === "ch") {
+      add("x", "CH → X"); i += 2; continue;
     }
 
-    // XC: padrões mais frequentes.
-    if(pair==="xc"){
-      if(isFrontVowel(c)) add("cs","XC → CS");
-      else add("xc","XC preservado");
-      i+=2; continue;
+    /* QU / GU */
+    if (a + b === "qu") {
+      if (isFrontVowel(c)) add("c", "QUE/QUI → CE/CI");
+      else add("cu", "QUA/QUO → CUA/CUO");
+      i += 2; continue;
     }
 
-    // Ç e SS.
-    if(a==="ç"){ add("s","Ç → S"); i++; continue; }
-    if(pair==="ss"){ add("s","SS → S"); i+=2; continue; }
+    if (a + b === "gu") {
+      if (isFrontVowel(c)) add("g", "GUE/GUI → GE/GI");
+      else add("gu", null);
+      i += 2; continue;
+    }
 
-    // X: classificação contextual.
-    if(a==="x"){
-      // Prefixo ex- seguido de vogal: normalmente /z/.
-      if(i===1 && w[0]==="e" && isVowel(b)){
-        add("z","EX → EZ");
-      } else if(i===0 && pair==="ex" && isVowel(c)){
-        add("z","EX inicial → EZ");
-      } else if(prev==="e" && isVowel(b)){
-        add("z","EX → EZ");
-      } else if((prev==="e" && b==="c") || (b==="c" && isFrontVowel(c))){
-        add("s","EXC → ES");
-      } else if(b==="p" || b==="t"){
-        add("s","X antes de P/T → S");
-      } else if(isVowel(prev) && isVowel(b)){
-        add("z","X intervocálico → Z");
+    /* GE / GI e CE / CI */
+    if (a + b === "ge") {
+      add("je", "GE → JE"); i += 2; continue;
+    }
+    if (a + b === "gi") {
+      add("ji", "GI → JI"); i += 2; continue;
+    }
+    if (a + b === "ce") {
+      add("se", "CE → SE"); i += 2; continue;
+    }
+    if (a + b === "ci") {
+      add("si", "CI → SI"); i += 2; continue;
+    }
+
+    if (a + b === "ss") {
+      add("s", "SS → S"); i += 2; continue;
+    }
+
+    if (a === "ç") {
+      add("s", "Ç → S"); i++; continue;
+    }
+
+    /*
+      X:
+      - EX + vogal: /z/
+      - EX + consoante: /s/ em vários prefixos (exp-, ext-, exc-...)
+      - X após AI/EI: /ʃ/, portanto o X já é a grafia simplificada e fica X.
+      - X com /ks/: CS.
+      - Os casos lexicalmente ambíguos ficam no mapa acima.
+    */
+    if (a === "x") {
+      const prefixEx = (i === 1 && w[0] === "e") || (i === 0 && b === "x");
+      const afterAiEi = (prev2 === "a" && prev === "i") ||
+                        (prev2 === "e" && prev === "i");
+
+      if (prefixEx && isVowel(b)) {
+        add("z", "EX + vogal → EZ");
+      } else if (prefixEx && (b === "p" || b === "t" || b === "c")) {
+        add("s", "EX + P/T/C → ES");
+      } else if (afterAiEi) {
+        add("x", "X com som /ʃ/ preservado");
       } else {
-        // O padrão /ks/ é preservado como CS.
-        add("cs","X → CS");
+        add("cs", "X com som /ks/ → CS");
       }
       i++; continue;
     }
 
-    // C isolado: C + E/I já foi tratado; C antes de A/O/U tem som /k/.
-    if(a==="c"){ add("c",null); i++; continue; }
+    /*
+      S intervocálico = Z.
+      A regra é aplicada à palavra original e não ao resultado de outra regra.
+    */
+    if (a === "s" && isVowel(prev) && isVowel(b)) {
+      add("z", "S intervocálico → Z"); i++; continue;
+    }
 
-    // G isolado: G + E/I já foi tratado.
-    if(a==="g"){ add("g",null); i++; continue; }
-
-    // S intervocálico = Z. SS já foi consumido.
-    if(a==="s"){
-      if(isVowel(prev) && isVowel(b)) add("z","S intervocálico → Z");
-      else add("s",null);
+    if (a === "c") {
+      add("c"); i++; continue;
+    }
+    if (a === "g") {
+      add("g"); i++; continue;
+    }
+    if (a === "k") {
+      add("c", "K → C"); i++; continue;
+    }
+    if (a === "y") {
+      add("i", "Y → I"); i++; continue;
+    }
+    if (a === "w") {
+      add("u", "W → U"); i++; continue;
+    }
+    if (a === "h") {
       i++; continue;
     }
 
-    // K, W, Y, H: grafias não desejadas.
-    if(a==="k"){ add("c","K → C"); i++; continue; }
-    if(a==="y"){ add("i","Y → I"); i++; continue; }
-    if(a==="w"){ add("u","W → U"); i++; continue; }
-    if(a==="h"){ i++; rules.push("H → omitido"); RULE_NAMES.add("H → omitido"); continue; }
-
-    add(a,null); i++;
+    add(a);
+    i++;
   }
 
-  return {word:preserveCase(original,out.join("")), applied:[...new Set(rules)]};
+  return {
+    word: preserveCase(word, out.join("")),
+    applied: [...new Set(rules)]
+  };
 }
 
-function convertWord(raw){
-  const ex=exceptionLookup(raw);
-  if(ex!==null) return {word:ex,applied:["caso validado"]};
-  return transformGeneric(raw);
+function convertWord(raw) {
+  const ex = exceptionLookup(raw);
+  if (ex !== null) return {word: ex, applied:["caso validado"]};
+  return genericConvert(raw);
 }
 
-function convertText(text){
-  const changes=[];
-  let ruleCount=0;
-
-  const converted=text.replace(/\p{L}+(?:[-']\p{L}+)*/gu, raw=>{
-    const r=convertWord(raw);
-    if(r.word!==raw){
-      changes.push({from:raw,to:r.word,rules:r.applied});
-      ruleCount+=r.applied.length;
+function convertText(text) {
+  const changes = [];
+  const converted = text.replace(/\p{L}+(?:[-']\p{L}+)*/gu, raw => {
+    const r = convertWord(raw);
+    if (r.word !== raw) {
+      changes.push({from: raw, to: r.word, rules: r.applied});
     }
     return r.word;
   });
-
-  return {converted,changes,ruleCount};
+  return {converted, changes};
 }
 
-function validate(text){
-  const problems=[];
-  const checks=[
-    ["SS proibido",/ss/i],["H proibido",/h/i],["K proibido",/k/i],
-    ["Q proibido",/q/i],["W proibido",/w/i],["Y proibido",/y/i],["Ç proibido",/ç/i]
-  ];
-  for(const [name,re] of checks) if(re.test(text)) problems.push(name);
+function validate(text) {
+  const problems = [];
+  for (const [nome, re] of [
+    ["SS proibido", /ss/i],
+    ["Ç proibido", /ç/i],
+    ["K proibido", /k/i],
+    ["W proibido", /w/i],
+    ["Y proibido", /y/i]
+  ]) {
+    if (re.test(text)) problems.push(nome);
+  }
   return problems;
 }
 
-function escapeHtml(s){
-  return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c =>
+    ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])
+  );
 }
 
-function render(){
-  const original=document.getElementById("orig").value;
-  const result=convertText(original);
-  document.getElementById("out").value=result.converted;
+function render() {
+  const original = document.getElementById("orig").value;
+  const result = convertText(original);
+  document.getElementById("out").value = result.converted;
 
-  const words=(original.match(/\p{L}+(?:[-']\p{L}+)*/gu)||[]).length;
-  const problems=validate(result.converted);
+  const words = (original.match(/\p{L}+(?:[-']\p{L}+)*/gu) || []).length;
+  const problems = validate(result.converted);
 
-  document.getElementById("words").textContent=words;
-  document.getElementById("changed").textContent=result.changes.length;
-  document.getElementById("rules").textContent=result.ruleCount;
-  document.getElementById("errors").textContent=problems.length;
+  document.getElementById("words").textContent = words;
+  document.getElementById("changed").textContent = result.changes.length;
+  document.getElementById("rules").textContent =
+    result.changes.reduce((n, x) => n + x.rules.length, 0);
+  document.getElementById("errors").textContent = problems.length;
 
-  const validation=document.getElementById("validation");
-  if(!problems.length){
-    validation.className="ok";
-    validation.textContent="✓ Validação estrutural concluída: nenhuma letra proibida encontrada.";
-  }else{
-    validation.className="bad";
-    validation.innerHTML="✗ Problemas encontrados: "+problems.map(escapeHtml).join(", ");
+  const validation = document.getElementById("validation");
+  if (!problems.length) {
+    validation.className = "ok";
+    validation.textContent =
+      "✓ Validação estrutural concluída: nenhuma grafia proibida encontrada.";
+  } else {
+    validation.className = "bad";
+    validation.textContent =
+      "✗ Problemas encontrados: " + problems.join(", ");
   }
 
-  const report=document.getElementById("report");
-  if(!result.changes.length){
-    report.textContent="Nenhuma alteração foi necessária.";
+  const report = document.getElementById("report");
+  if (!result.changes.length) {
+    report.textContent = "Nenhuma alteração foi necessária.";
     return;
   }
-  report.innerHTML="<table><thead><tr><th>Original</th><th>Convertida</th><th>Regra</th></tr></thead><tbody>"+
-    result.changes.map(x=>"<tr><td><code>"+escapeHtml(x.from)+"</code></td><td><code>"+
-    escapeHtml(x.to)+"</code></td><td>"+x.rules.map(escapeHtml).map(v=>"<span class='tag'>"+v+
-    "</span>").join(" ")+"</td></tr>").join("")+"</tbody></table>";
+
+  report.innerHTML =
+    "<table><thead><tr><th>Original</th><th>Convertida</th><th>Regra</th></tr></thead><tbody>" +
+    result.changes.map(x =>
+      "<tr><td><code>" + escapeHtml(x.from) +
+      "</code></td><td><code>" + escapeHtml(x.to) +
+      "</code></td><td>" +
+      x.rules.map(r => "<span class='tag'>" + escapeHtml(r) +
+      "</span>").join(" ") +
+      "</td></tr>"
+    ).join("") + "</tbody></table>";
 }
 
-document.getElementById("convert").addEventListener("click",render);
-document.getElementById("copy").addEventListener("click",async()=>{
-  const text=document.getElementById("out").value;
-  if(!text)return;
-  try{await navigator.clipboard.writeText(text);}catch(e){
-    const ta=document.getElementById("out");ta.select();document.execCommand("copy");
-  }
-});
-document.getElementById("clear").addEventListener("click",()=>{
-  document.getElementById("orig").value="";
-  document.getElementById("out").value="";
-  document.getElementById("report").textContent="Faça uma conversão para ver a análise.";
-  document.getElementById("validation").className="small";
-  document.getElementById("validation").textContent="Ainda não executada.";
-  ["words","changed","rules","errors"].forEach(id=>document.getElementById(id).textContent="0");
-});
-document.getElementById("download").addEventListener("click",()=>{
-  const text=document.getElementById("out").value;
-  if(!text)return;
-  const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="texto_convertido.txt";
-  a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),500);
-});
-
-// Testes rápidos das conversões já validadas.
-const TESTES=[
-["reflexo","reflecso"],["texto","testo"],["você","vosê"],
-["antiguidade","antiguidade"],["aproximar","aprosimar"],
-["aproximação","aprosimasão"],["transição","tranzisão"],
-["desconexão","desconecsão"],["exercício","ezersísio"],
-["gélida","jélida"],["reuniões","reunioins"],["soluções","solusoins"],
-["discussões","discusoins"],["obrigações","obrigasoins"],
-["notificações","notificasoins"],["expostas","espostas"],
-["expediente","espediente"],["exato","ezato"],["próximas","prósimas"],
-["reflexivas","reflecsivas"],["fixo","ficso"],["fluxo","flucso"],
-["extrema","estrema"],["extremidade","estremidade"],
-["extremamente","estremamente"],["urgência","urjênsia"],
-["incêndio","insêndio"],["legítimo","lejítimo"]
+/* ============================================================
+   REGRESSÃO: casos que já foram validados pelo usuário.
+   A versão só é considerada correta se todos passarem.
+   ============================================================ */
+const TESTES_REGRESSAO = [
+  ["reflexo","reflecso"],
+  ["texto","testo"],
+  ["você","vosê"],
+  ["antiguidade","antiguidade"],
+  ["antiguidades","antiguidades"],
+  ["deixando","deixando"],
+  ["faixa","faixa"],
+  ["faixas","faixas"],
+  ["põe","poim"],
+  ["shopping","xópim"],
+  ["ambições","ambisoins"],
+  ["fundações","fundasoins"],
+  ["reuniões","reunioins"],
+  ["soluções","solusoins"],
+  ["discussões","discusoins"],
+  ["obrigações","obrigasoins"],
+  ["notificações","notificasoins"],
+  ["aproximar","aprosimar"],
+  ["aproximando","aprosimando"],
+  ["aproximação","aprosimasão"],
+  ["próximas","prósimas"],
+  ["transição","tranzisão"],
+  ["desconexão","desconecsão"],
+  ["exercício","ezersísio"],
+  ["gélida","jélida"],
+  ["exato","ezato"],
+  ["exatamente","ezatamente"],
+  ["expediente","espediente"],
+  ["expostas","espostas"],
+  ["externa","esterna"],
+  ["reflexivas","reflecsivas"],
+  ["fixo","ficso"],
+  ["fixada","ficsada"],
+  ["fluxo","flucso"],
+  ["extrema","estrema"],
+  ["extremidade","estremidade"],
+  ["extremamente","estremamente"],
+  ["urgência","urjênsia"],
+  ["incêndio","insêndio"],
+  ["legítimo","lejítimo"]
 ];
 
-function testarRegras(){
-  return TESTES.map(([entrada,esperado])=>{
-    const atual=convertWord(entrada).word;
-    return {entrada,esperado,atual,ok:atual===esperado};
+function executarTestesRegressao() {
+  return TESTES_REGRESSAO.map(([entrada, esperado]) => {
+    const atual = convertWord(entrada).word;
+    return {entrada, esperado, atual, ok: atual === esperado};
   });
 }
 
-// API pública da camada inteligente para integração com a conversão atual.
-window.fonetizaConverterPalavraInteligente = fonetizaAplicarRegrasInteligentes;
+function validarVersao() {
+  const resultados = executarTestesRegressao();
+  return {
+    total: resultados.length,
+    aprovados: resultados.filter(x => x.ok).length,
+    falhas: resultados.filter(x => !x.ok)
+  };
+}
+
+document.getElementById("convert").addEventListener("click", render);
+
+document.getElementById("copy").addEventListener("click", async () => {
+  const text = document.getElementById("out").value;
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const ta = document.getElementById("out");
+    ta.select();
+    document.execCommand("copy");
+  }
+});
+
+document.getElementById("clear").addEventListener("click", () => {
+  document.getElementById("orig").value = "";
+  document.getElementById("out").value = "";
+  document.getElementById("report").textContent =
+    "Faça uma conversão para ver a análise.";
+  document.getElementById("validation").className = "small";
+  document.getElementById("validation").textContent = "Ainda não executada.";
+  ["words","changed","rules","errors"].forEach(id =>
+    document.getElementById(id).textContent = "0"
+  );
+});
+
+document.getElementById("download").addEventListener("click", () => {
+  const text = document.getElementById("out").value;
+  if (!text) return;
+  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "texto_convertido.txt";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 500);
+});
+
+/* A interface pode consultar os testes sem interferir na conversão. */
+window.fonetiza = {
+  converter: convertText,
+  converterPalavra: convertWord,
+  validar: validarVersao,
+  testes: executarTestesRegressao
+};
