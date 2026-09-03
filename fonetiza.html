@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fonetiza — conversor experimental de escrita fonética para português brasileiro.">
+<title>Fonetiza — Português mais perto da fala</title>
+<style>
+:root{--bg:#f7f5f2;--text:#20262d;--muted:#66717d;--dark:#17212b;--line:#dfe3e6;--panel:#fff;--accent:#1769aa}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);background:var(--bg);line-height:1.55}
+header.hero{background:var(--dark);color:#fff;padding:28px 24px 58px}nav{max-width:1160px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}nav strong{font-size:25px}nav a{color:#dce7f0;text-decoration:none;font-weight:600}.hero-content{max-width:1160px;margin:60px auto 0}.tag{display:inline-block;font-size:12px;letter-spacing:.12em;font-weight:800;color:#aebdca;margin-bottom:12px}.hero h1{font-size:clamp(42px,6vw,72px);line-height:1.02;margin:0 0 22px;letter-spacing:-.035em}.hero h1 em{font-style:normal;color:#c7d6e3}.hero p{max-width:680px;color:#d4dde5;font-size:18px;margin:0}
+main{max-width:1160px;margin:-28px auto 0;padding:0 20px 60px}.converter{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(20,30,40,.06)}label{display:block;font-weight:800;margin-bottom:9px}.panel textarea{width:100%;min-height:300px;border:1px solid #cfd6dc;border-radius:11px;padding:14px;font:15px/1.55 Consolas,monospace;resize:vertical;outline:none;background:#fff;color:var(--text)}.panel textarea:focus{border-color:#9db5c8;box-shadow:0 0 0 3px rgba(23,105,170,.08)}#fonetizar,#copiar{border:0;border-radius:11px;padding:11px 16px;font-weight:800;cursor:pointer}.converter>#fonetizar{background:var(--accent);color:#fff;white-space:nowrap;box-shadow:0 6px 14px rgba(23,105,170,.18)}#copiar{background:#eef2f5;color:#20262d}.result-title{display:flex;justify-content:space-between;align-items:center;gap:10px}.examples,.about{margin-top:34px}.examples h2,.about h2{font-size:24px;margin:0 0 14px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.cards article{background:#fff;border:1px solid var(--line);border-radius:13px;padding:17px}.cards span{display:block;color:var(--muted);font-size:13px;margin-bottom:5px}.cards b{font:600 16px Consolas,monospace}.about{max-width:760px}.about p{color:var(--muted);font-size:16px}.about h2{letter-spacing:-.02em}footer{border-top:1px solid var(--line);padding:24px 20px;display:flex;gap:12px;justify-content:center;color:var(--muted);font-size:14px}footer strong{color:var(--text)}
+@media(max-width:900px){.converter{grid-template-columns:1fr}.converter>#fonetizar{justify-self:start}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){header.hero{padding-bottom:48px}.hero-content{margin-top:45px}.hero h1{font-size:42px}.cards{grid-template-columns:1fr}.panel textarea{min-height:240px}}
+</style>
+</head>
+<body>
+<header class="hero">
+<nav><strong>Fonetiza</strong><a href="https://github.com/" target="_blank" rel="noopener">GitHub</a></nav>
+<div class="hero-content"><span class="tag">ESCRITA FONÉTICA</span><h1>Português escrito<br><em>mais perto da fala.</em></h1><p>Transforme palavras e textos para uma escrita simplificada, baseada na pronúncia do português brasileiro.</p></div>
+</header>
+<main>
+<section class="converter">
+<div class="panel"><label for="entrada">Texto original</label><textarea id="entrada" spellcheck="false" placeholder="Digite ou cole seu texto aqui..."></textarea></div>
+<button id="fonetizar" type="button">Fonetizar →</button>
+<div class="panel result"><div class="result-title"><label for="saida">Resultado</label><button id="copiar" type="button">Copiar</button></div><textarea id="saida" spellcheck="false" readonly placeholder="O resultado aparecerá aqui..."></textarea></div>
+</section>
+<section class="examples"><h2>Veja a ideia</h2><div class="cards"><article><span>exatamente</span><b>ezatamente</b></article><article><span>aproximação</span><b>aprosimasão</b></article><article><span>reuniões</span><b>reunioins</b></article><article><span>inscrições</span><b>inscrisoins</b></article></div></section>
+<section class="about"><h2>Não é IPA. É uma nova forma de escrever.</h2><p>O Fonetiza não tenta representar a pronúncia com símbolos técnicos. A proposta é manter o alfabeto comum e aproximar a escrita da maneira como as palavras são pronunciadas.</p></section>
+</main>
+<footer><strong>Fonetiza</strong><span>Projeto experimental de escrita fonética.</span></footer>
+<script>'use strict';
+const EXCEPTIONS=new Map(Object.entries({
+'aqui':'aci','exterior':'esterior','próximo':'prósimo','próxima':'prósima','próximas':'prósimas','próximos':'prósimos','texto':'testo','você':'vosê','reflexo':'reflecso','reflexivas':'reflecsivas','fixo':'ficso','fixada':'ficsada','fluxo':'flucso','exato':'ezato','exatamente':'ezatamente','exercício':'ezersísio','expediente':'espediente','expostas':'espostas','exclusivamente':'escluzivamente','desconexão':'desconecsão','transição':'tranzisão','trânsito':'trânzito','gélida':'jélida','legítimo':'lejítimo','urgência':'urjênsia','incêndio':'insêndio','extrema':'estrema','extremidade':'estremidade','extremamente':'estremamente','aproximar':'aprosimar','aproximando':'aprosimando','aproximação':'aprosimasão','deixando':'deixando','deixa':'deixa','faixa':'faixa','faixas':'faixas','frequentadores':'frecuentadores','shopping':'xópim','põe':'poim','antiguidade':'antiguidade','antiguidades':'antiguidades','ambições':'ambisoins','fundações':'fundasoins','preocupações':'preocupasoins','soluções':'solusoins','discussões':'discusoins','obrigações':'obrigasoins','notificações':'notificasoins','anotações':'anotasoins','ligações':'ligasoins','reuniões':'reunioins','expedições':'espedisoins','regiões':'rejioins','posições':'pozisoins','estações':'estasoins','espiões':'espioins','corações':'corasoins','gerações':'jerasoins','sensação':'sensasão','situação':'situasão','função':'funsão','atenção':'atensão','proteção':'protesão','produção':'produsão','organização':'organizasão','discussão':'discusão','expressão':'espresão','expressivos':'espresivos','explicação':'esplicasão','explicações':'esplicasoins','necessário':'nesesário','necessidade':'nesesidade','segurança':'seguransa','silêncio':'silênsio','espaço':'espaso','infância':'infânsia','superfície':'superfísie','círculos':'sírculos','artificial':'artifisial','principal':'prinsipal','cercada':'sercada','frase':'fraze','casa':'caza','casaco':'cazaco','casais':'cazais','peso':'pezo','pesada':'pezada','presente':'prezente','repousa':'repouza','baseado':'bazeado','idoso':'idozo','refúgio':'refújio','ligeiramente':'lijeiramente','página':'pájina','gênero':'jênero','científica':'sientífica','história':'istória','ficção':'ficsão','chuva':'xuva','cheiro':'xeiro','chegar':'xegar','chamou':'xamou','chafariz':'xafariz','choque':'xoque','galho':'gallo','olhar':'ollar','olhos':'ollos','trabalho':'traballo','trilha':'trilla','linha':'linna','linhas':'linnas','tinha':'tinna','manhã':'mannã','conhecia':'connesia','conhecer':'conneser','conhecida':'connesida','conhecidas':'connesidas','conhecimento':'connesimento','conseguia':'consegia','receber':'reseber','recebido':'resebido','começava':'comesava','começou':'comesou','começam':'comesam','começando':'comesando','descendo':'desendo','desceu':'deseu','descer':'deser','descida':'desida','esquecido':'escesido','esvaziasse':'esvaziase','hesitou':'ezitou','trouxe':'trouse','trouxeram':'trouseram','desavisados':'dezavizados','atrasa':'atraza','quase':'cuaze','quatro':'cuatro','quando':'cuando','qualquer':'cualcer','porque':'porce','que':'ce','quem':'cem','aquele':'acele','aquela':'acela','daquele':'dacele','daquela':'dacela','quente':'cente','pequeno':'peceno','pequena':'pecena','esquina':'escina','tranquilo':'trancuilo','trancilo':'trancuilo','aquecer':'aceser','Miguel':'Migel','exalando':'ezalando','exige':'ezije','exigindo':'ezijindo','exigiriam':'ezijiriam','exibindo':'ezibindo','exemplo':'ezemplo','existia':'ezistia','existiria':'ezistiria','existem':'ezistem','existe':'eziste','excelente':'eselente','excelência':'eselênsia','excesso':'eseso','exceto':'eseto','experiência':'esperiênsia','experimentava':'esperimentava','explorar':'esplorar','presisar':'presizar','precisar':'presizar','presisava':'presizava','precisava':'presizava','precisão':'presizão','desacelerar':'dezaselerar','desconhecido':'desconnesido','escolhido':'escollido','silencioso':'silensioso','silenciosas':'silensiosas','anúncio':'anúnsio','coisas':'coizas','viajem':'viajem','ninguém':'ningém','ajustar':'ajustar','ciser':'cizer','estivessem':'estivese','represa':'repreza','desejo':'dezejo','cuidadosamente':'cuidadozamente','modificações':'modificasoins','estação':'estasão','amanhecido':'amannesido','acontecia':'acontesia','cachorros':'caxorros','cachecol':'caxecol','funсionava':'funsionava','exame':'ezame','existir':'ezistir','existência':'ezistênsia','exigência':'ezijênsia','crescer':'creser','crescimento':'cresimento','licença':'lisensa','serviço':'serviso','princípio':'prinsípio','ação':'asão','coração':'corasão','solução':'solusão','educação':'educasão','aceitação':'aseitasão','comunicação':'comunicasão','informação':'informasão','reação':'reasão','atração':'atrasão','criação':'criasão','decisão':'desizão','possível':'posível','passeio':'paseio','crise':'crize','fase':'faze','mesa':'meza','camisa':'camiza','visita':'vizita','análise':'análize','pessoa':'pesoa','sangue':'sange','língua':'língua','sequência':'secuênsia','frequência':'frecuênsia','consequência':'consecuênsia','higiene':'ijiene'}));
+function lower(s){return s.toLocaleLowerCase('pt-BR')}
+function caseLike(raw,out){if(raw===raw.toLocaleUpperCase('pt-BR')&&raw!==raw.toLocaleLowerCase('pt-BR'))return out.toLocaleUpperCase('pt-BR');if(raw&&raw[0]===raw[0].toLocaleUpperCase('pt-BR')&&raw[0]!==raw[0].toLocaleLowerCase('pt-BR'))return out.charAt(0).toLocaleUpperCase('pt-BR')+out.slice(1);return out}
+function generic(word){
+ const v=c=>!!c&&/[aeiouáéíóúâêôãõ]/i.test(c); const out=[]; let i=0;
+ while(i<word.length){const a=word[i],b=word[i+1]||'',c=word[i+2]||'',p=lower(a+b);
+  if(!/\p{L}/u.test(a)){out.push(a);i++;continue}
+  if(p==='nh'){out.push(caseLike(a,'n')+'n');i+=2;continue}
+  if(p==='lh'){out.push(caseLike(a,'l')+'l');i+=2;continue}
+  if(p==='ch'){out.push(caseLike(a,'x'));i+=2;continue}
+  if(p==='sc' && /[eéií]/i.test(c)){out.push(caseLike(a,'s'));i+=2;continue}
+  if(lower(a)==='ç'){out.push(a==='Ç'?'S':'s');i++;continue}
+  if(p==='ss'){out.push(caseLike(a,'s'));i+=2;continue}
+  if(p==='ge'){out.push(caseLike(a,'j')+'e');i+=2;continue}
+  if(p==='gi'){out.push(caseLike(a,'j')+'i');i+=2;continue}
+  if(p==='ce'){out.push(caseLike(a,'s')+'e');i+=2;continue}
+  if(p==='ci'){out.push(caseLike(a,'s')+'i');i+=2;continue}
+  if(p==='qu'){if(/[eéií]/i.test(c))out.push(caseLike(a,'c'));else out.push(caseLike(a,'c')+'u');i+=2;continue}
+  if(p==='gu'){if(/[eéií]/i.test(c))out.push(a);else out.push(a+'u');i+=2;continue}
+  if(lower(a)==='x'){
+    const prev=word[i-1]||'';
+    // Em "ex-", o X assume som de Z antes de vogal e de S antes de consoante.
+    // Exemplos: exame → ezame, exemplo → ezemplo, exterior → esterior,
+    // extremo → estremo, explicar → esplicar.
+    if(lower(prev)==='e'){
+      if(v(c)) out.push(caseLike(a,'z'));
+      else if(c && /\p{L}/u.test(c)) out.push(caseLike(a,'s'));
+      else out.push(a);
+    } else out.push(a);
+    i++;continue
+  }
+  if(lower(a)==='s'){const prev=word[i-1]||'',next=b;if(v(prev)&&v(next))out.push(a==='S'?'Z':'z');else out.push(a);i++;continue}
+  if(lower(a)==='k'){out.push(a==='K'?'C':'c');i++;continue}
+  if(lower(a)==='y'){out.push(a==='Y'?'I':'i');i++;continue}
+  if(lower(a)==='w'){out.push(a==='W'?'U':'u');i++;continue}
+  if(lower(a)==='h'){i++;continue}
+  out.push(a);i++;
+ }
+ return out.join('')
+}
+function convertWord(raw){const key=lower(raw);if(/ções$/i.test(raw)){const stem=raw.slice(0,-4);return caseLike(raw,generic(stem)+'soins')}if(/^explo/i.test(raw))return caseLike(raw,raw.replace(/^explo/i,'esplo'));if(EXCEPTIONS.has(key))return caseLike(raw,EXCEPTIONS.get(key));return generic(raw)}
+function convertText(text){const changes=[];let words=0;let rules=0;const converted=text.replace(/\p{L}+(?:[-’']\p{L}+)*/gu,m=>{words++;const to=convertWord(m);if(to!==m){changes.push({from:m,to});rules++}return to});return{converted,changes,words,ruleCount:rules}}
+function validate(text){const p=[];for(const [n,re] of [['SS proibido',/ss/i],['H proibido',/h/i],['K proibido',/k/i],['Q proibido',/q/i],['W proibido',/w/i],['Y proibido',/y/i],['Ç proibido',/ç/i]])if(re.test(text))p.push(n);return p}
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){const orig=document.getElementById('orig').value,r=convertText(orig);document.getElementById('out').value=r.converted;document.getElementById('words').textContent=r.words;document.getElementById('changed').textContent=r.changes.length;document.getElementById('rules').textContent=r.ruleCount;const probs=validate(r.converted);document.getElementById('errors').textContent=probs.length;const val=document.getElementById('validation');val.className=probs.length?'bad':'ok';val.textContent=probs.length?'✗ '+probs.join(', '):'✓ Validação estrutural concluída.';const rep=document.getElementById('report');rep.innerHTML=r.changes.length?'<table><thead><tr><th>Original</th><th>Convertida</th></tr></thead><tbody>'+r.changes.map(x=>'<tr><td><code>'+esc(x.from)+'</code></td><td><code>'+esc(x.to)+'</code></td></tr>').join('')+'</tbody></table>':'Nenhuma alteração foi necessária.'}
+window.Fonetiza={convertWord,convertText,validate,EXCEPTIONS};
+document.addEventListener('DOMContentLoaded',()=>{
+ const entrada=document.getElementById('entrada'), saida=document.getElementById('saida');
+ document.getElementById('fonetizar').addEventListener('click',()=>{saida.value=window.Fonetiza.convertText(entrada.value).converted;});
+ document.getElementById('copiar').addEventListener('click',async()=>{const t=saida.value;if(!t)return;try{await navigator.clipboard.writeText(t)}catch{saida.select();document.execCommand('copy')}});
+});
+</script>
+</body></html>
